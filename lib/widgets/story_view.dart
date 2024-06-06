@@ -423,6 +423,12 @@ class StoryView extends StatefulWidget {
 
   final HitTestBehavior? gestureBehavior;
 
+  final double gestureAreaHeight;
+
+  final double gestureAreaWidthRatio;
+
+  final Color gestureBackgroundColor;
+
   StoryView({
     required this.storyItems,
     required this.controller,
@@ -434,6 +440,9 @@ class StoryView extends StatefulWidget {
     this.onVerticalSwipeComplete,
     this.onDoubleTap,
     this.gestureBehavior,
+    this.gestureAreaHeight = 0.7,
+    this.gestureAreaWidthRatio = 0.8,
+    this.gestureBackgroundColor = Colors.transparent,
     this.indicatorColor,
     this.indicatorForegroundColor,
     this.indicatorHeight = IndicatorHeight.large,
@@ -646,9 +655,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
       color: Colors.white,
       child: Stack(
         children: <Widget>[
-          IgnorePointer(
-            child: _currentView,
-          ),
+          _currentView,
           Visibility(
             visible: widget.progressPosition != ProgressPosition.none,
             child: Align(
@@ -676,70 +683,79 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
           ),
           Align(
               alignment: Alignment.centerRight,
-              heightFactor: 1,
-              child: GestureDetector(
-                behavior: widget.gestureBehavior,
-                onDoubleTap: widget.onDoubleTap,
-                onTapDown: (details) {
-                  widget.controller.pause();
-                },
-                onTapCancel: () {
-                  widget.controller.play();
-                },
-                onTapUp: (details) {
-                  // if debounce timed out (not active) then continue anim
-                  if (_nextDebouncer?.isActive == false) {
+              child: Container(
+                height: MediaQuery.of(context).size.height *
+                    widget.gestureAreaHeight,
+                width: MediaQuery.of(context).size.width *
+                    widget.gestureAreaWidthRatio,
+                color: widget.gestureBackgroundColor,
+                child: GestureDetector(
+                  behavior: widget.gestureBehavior,
+                  onDoubleTap: widget.onDoubleTap,
+                  onTapDown: (details) {
+                    widget.controller.pause();
+                  },
+                  onTapCancel: () {
                     widget.controller.play();
-                  } else {
-                    widget.controller.next();
-                  }
-                },
-                onVerticalDragStart: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : (details) {
-                        widget.controller.pause();
-                      },
-                onVerticalDragCancel: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : () {
-                        widget.controller.play();
-                      },
-                onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : (details) {
-                        if (verticalDragInfo == null) {
-                          verticalDragInfo = VerticalDragInfo();
-                        }
+                  },
+                  onTapUp: (details) {
+                    // if debounce timed out (not active) then continue anim
+                    if (_nextDebouncer?.isActive == false) {
+                      widget.controller.play();
+                    } else {
+                      widget.controller.next();
+                    }
+                  },
+                  onVerticalDragStart: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          widget.controller.pause();
+                        },
+                  onVerticalDragCancel: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : () {
+                          widget.controller.play();
+                        },
+                  onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          if (verticalDragInfo == null) {
+                            verticalDragInfo = VerticalDragInfo();
+                          }
 
-                        verticalDragInfo!.update(details.primaryDelta!);
+                          verticalDragInfo!.update(details.primaryDelta!);
 
-                        // TODO: provide callback interface for animation purposes
-                      },
-                onVerticalDragEnd: widget.onVerticalSwipeComplete == null
-                    ? null
-                    : (details) {
-                        widget.controller.play();
-                        // finish up drag cycle
-                        if (!verticalDragInfo!.cancel &&
-                            widget.onVerticalSwipeComplete != null) {
-                          widget.onVerticalSwipeComplete!(
-                              verticalDragInfo!.direction);
-                        }
+                          // TODO: provide callback interface for animation purposes
+                        },
+                  onVerticalDragEnd: widget.onVerticalSwipeComplete == null
+                      ? null
+                      : (details) {
+                          widget.controller.play();
+                          // finish up drag cycle
+                          if (!verticalDragInfo!.cancel &&
+                              widget.onVerticalSwipeComplete != null) {
+                            widget.onVerticalSwipeComplete!(
+                                verticalDragInfo!.direction);
+                          }
 
-                        verticalDragInfo = null;
-                      },
+                          verticalDragInfo = null;
+                        },
+                ),
               )),
           Align(
             alignment: Alignment.centerLeft,
-            heightFactor: 1,
-            child: SizedBox(
+            child: Container(
+              height:
+                  MediaQuery.of(context).size.height * widget.gestureAreaHeight,
+              width: MediaQuery.of(context).size.width *
+                  (1 - widget.gestureAreaWidthRatio),
+              color: widget.gestureBackgroundColor,
               child: GestureDetector(
                 behavior: widget.gestureBehavior,
                 onTap: () {
                   widget.controller.previous();
                 },
               ),
-              width: 70,
             ),
           ),
         ],
