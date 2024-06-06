@@ -425,7 +425,9 @@ class StoryView extends StatefulWidget {
 
   final double gestureAreaHeight;
 
-  final double gestureAreaWidthRatio;
+  final double leftGestureAreaWidth;
+
+  final double rightGestureAreaWidth;
 
   final Color gestureBackgroundColor;
 
@@ -440,8 +442,9 @@ class StoryView extends StatefulWidget {
     this.onVerticalSwipeComplete,
     this.onDoubleTap,
     this.gestureBehavior,
-    this.gestureAreaHeight = 0.7,
-    this.gestureAreaWidthRatio = 0.8,
+    this.gestureAreaHeight = double.infinity,
+    this.leftGestureAreaWidth = 0.2,
+    this.rightGestureAreaWidth = 0.6,
     this.gestureBackgroundColor = Colors.transparent,
     this.indicatorColor,
     this.indicatorForegroundColor,
@@ -684,10 +687,8 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
           Align(
               alignment: Alignment.centerRight,
               child: Container(
-                height: MediaQuery.of(context).size.height *
-                    widget.gestureAreaHeight,
-                width: MediaQuery.of(context).size.width *
-                    widget.gestureAreaWidthRatio,
+                height: widget.gestureAreaHeight,
+                width: widget.rightGestureAreaWidth,
                 color: widget.gestureBackgroundColor,
                 child: GestureDetector(
                   behavior: widget.gestureBehavior,
@@ -745,10 +746,8 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
           Align(
             alignment: Alignment.centerLeft,
             child: Container(
-              height:
-                  MediaQuery.of(context).size.height * widget.gestureAreaHeight,
-              width: MediaQuery.of(context).size.width *
-                  (1 - widget.gestureAreaWidthRatio),
+              height: widget.gestureAreaHeight,
+              width: widget.leftGestureAreaWidth,
               color: widget.gestureBackgroundColor,
               child: GestureDetector(
                 behavior: widget.gestureBehavior,
