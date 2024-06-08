@@ -3,11 +3,10 @@ import 'dart:math';
 
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
+import 'package:story_view/story_view.dart';
 
 import '../controller/story_controller.dart';
 import '../utils.dart';
-import 'story_image.dart';
-import 'story_video.dart';
 
 /// Indicates where the progress indicators should be placed.
 enum ProgressPosition { top, bottom, none }
@@ -34,8 +33,8 @@ class StoryItem {
 
   /// The page content
   final Widget view;
-  StoryItem(
-    this.view, {
+  StoryItem({
+    this.view = const SizedBox.shrink(),
     required this.duration,
     this.shown = false,
   });
@@ -70,7 +69,7 @@ class StoryItem {
     ] /** white text */);
 
     return StoryItem(
-      Container(
+      view: Container(
         key: key,
         decoration: BoxDecoration(
           color: backgroundColor,
@@ -120,7 +119,7 @@ class StoryItem {
     Duration? duration,
   }) {
     return StoryItem(
-      Container(
+      view: Container(
         key: key,
         color: Colors.black,
         child: Stack(
@@ -177,7 +176,7 @@ class StoryItem {
     Duration? duration,
   }) {
     return StoryItem(
-      ClipRRect(
+      view: ClipRRect(
         key: key,
         child: Container(
           color: Colors.grey[100],
@@ -234,7 +233,7 @@ class StoryItem {
     Widget? errorWidget,
   }) {
     return StoryItem(
-        Container(
+        view: Container(
           key: key,
           color: Colors.black,
           child: Stack(
@@ -278,7 +277,7 @@ class StoryItem {
     Duration? duration,
   }) {
     return StoryItem(
-        Container(
+        view: Container(
           key: key,
           color: Colors.black,
           child: Stack(
@@ -338,7 +337,7 @@ class StoryItem {
     Duration? duration,
   }) {
     return StoryItem(
-      Container(
+      view: Container(
         key: key,
         decoration: BoxDecoration(
             color: Colors.grey[100],
@@ -431,9 +430,16 @@ class StoryView extends StatefulWidget {
 
   final Color gestureBackgroundColor;
 
+  final Widget Function(
+    BuildContext context,
+    StoryItem item,
+    // int index,
+  ) itemBuilder;
+
   StoryView({
     required this.storyItems,
     required this.controller,
+    required this.itemBuilder,
     this.onComplete,
     this.onStoryShow,
     this.progressPosition = ProgressPosition.top,
@@ -658,7 +664,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
       color: Colors.white,
       child: Stack(
         children: <Widget>[
-          _currentView,
+          widget.itemBuilder(context, _currentStory!),
           Visibility(
             visible: widget.progressPosition != ProgressPosition.none,
             child: Align(
