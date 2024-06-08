@@ -442,8 +442,9 @@ class StoryView<ItemType> extends StatefulWidget {
   final Widget Function(
     BuildContext context,
     StoryItem item,
-    int index,
-  ) itemBuilder;
+    int index, {
+    required StoryController controller,
+  }) itemBuilder;
 
   StoryView({
     required this.storyItems,
@@ -676,7 +677,8 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
       child: Stack(
         children: <Widget>[
           widget.itemBuilder(context, _currentStory!,
-              widget.storyItems.indexOf(_currentStory!)),
+              widget.storyItems.indexOf(_currentStory!),
+              controller: widget.controller),
           Visibility(
             visible: widget.progressPosition != ProgressPosition.none,
             child: Align(

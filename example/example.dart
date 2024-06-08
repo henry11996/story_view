@@ -35,7 +35,8 @@ class Home extends StatelessWidget {
             Container(
               height: 300,
               child: StoryView(
-                itemBuilder: (context, item, i) {
+                itemBuilder: (context, item, i,
+                    {required StoryController controller}) {
                   return item.view;
                 },
                 controller: controller,
@@ -226,7 +227,13 @@ class _MoreStoriesState extends State<MoreStories> {
         progressPosition: ProgressPosition.top,
         repeat: false,
         controller: storyController,
-        itemBuilder: (BuildContext context, StoryItem item, i) {
+        itemBuilder: (
+          BuildContext context,
+          StoryItem item,
+          int index, {
+          required StoryController controller,
+        } // Add this parameter
+            ) {
           return item.view;
         },
       ),
