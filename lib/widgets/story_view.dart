@@ -16,7 +16,7 @@ enum ProgressPosition { top, bottom, none }
 enum IndicatorHeight { small, medium, large }
 
 /// This is a representation of a story item (or page).
-class StoryItem {
+class StoryItem<ItemType> {
   /// Specifies how long the page should be displayed. It should be a reasonable
   /// amount of time greater than 0 milliseconds.
   final Duration duration;
@@ -33,8 +33,12 @@ class StoryItem {
 
   /// The page content
   final Widget view;
+
+  final ItemType? data;
+
   StoryItem({
     this.view = const SizedBox.shrink(),
+    this.data,
     required this.duration,
     this.shown = false,
   });
@@ -375,9 +379,9 @@ class StoryItem {
 /// Widget to display stories just like Whatsapp and Instagram. Can also be used
 /// inline/inside [ListView] or [Column] just like Google News app. Comes with
 /// gestures to pause, forward and go to previous page.
-class StoryView extends StatefulWidget {
+class StoryView<ItemType> extends StatefulWidget {
   /// The pages to displayed.
-  final List<StoryItem?> storyItems;
+  final List<StoryItem<ItemType>?> storyItems;
 
   /// Callback for when a full cycle of story is shown. This will be called
   /// each time the full story completes when [repeat] is set to `true`.
@@ -433,7 +437,7 @@ class StoryView extends StatefulWidget {
   final Widget Function(
     BuildContext context,
     StoryItem item,
-    // int index,
+    int index,
   ) itemBuilder;
 
   StoryView({
@@ -477,7 +481,9 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
   VerticalDragInfo? verticalDragInfo;
 
   StoryItem? get _currentStory {
-    return widget.storyItems.firstWhereOrNull((it) => !it!.shown);
+    var item = widget.storyItems.firstWhereOrNull((it) => !it!.shown);
+    item ??= widget.storyItems.last;
+    return item;
   }
 
   Widget get _currentView {
@@ -664,7 +670,8 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
       color: Colors.white,
       child: Stack(
         children: <Widget>[
-          widget.itemBuilder(context, _currentStory!),
+          widget.itemBuilder(context, _currentStory!,
+              widget.storyItems.indexOf(_currentStory!)),
           Visibility(
             visible: widget.progressPosition != ProgressPosition.none,
             child: Align(
