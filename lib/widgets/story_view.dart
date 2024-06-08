@@ -43,6 +43,11 @@ class StoryItem<ItemType> {
     this.shown = false,
   });
 
+  @override
+  bool operator ==(Object other) {
+    return data == (other as StoryItem).data;
+  }
+
   /// Short hand to create text-only page.
   ///
   /// [title] is the text to be displayed on [backgroundColor]. The text color
