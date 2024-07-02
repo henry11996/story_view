@@ -439,6 +439,8 @@ class StoryView<ItemType> extends StatefulWidget {
 
   final Color gestureBackgroundColor;
 
+  final EdgeInsetsGeometry padding;
+
   final Widget Function(
     BuildContext context,
     StoryItem item,
@@ -461,6 +463,7 @@ class StoryView<ItemType> extends StatefulWidget {
     this.gestureAreaHeight = double.infinity,
     this.leftGestureAreaWidth = 0.2,
     this.rightGestureAreaWidth = 0.6,
+    this.padding = const EdgeInsets.all(0),
     this.gestureBackgroundColor = Colors.transparent,
     this.indicatorColor,
     this.indicatorForegroundColor,
@@ -706,74 +709,80 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
           ),
           Align(
               alignment: Alignment.centerRight,
-              child: Container(
-                height: widget.gestureAreaHeight,
-                width: widget.rightGestureAreaWidth,
-                color: widget.gestureBackgroundColor,
-                child: GestureDetector(
-                  behavior: widget.gestureBehavior,
-                  onDoubleTap: widget.onDoubleTap,
-                  onTapDown: (details) {
-                    widget.controller.pause();
-                  },
-                  onTapCancel: () {
-                    widget.controller.play();
-                  },
-                  onTapUp: (details) {
-                    // if debounce timed out (not active) then continue anim
-                    if (_nextDebouncer?.isActive == false) {
+              child: Padding(
+                padding: widget.padding,
+                child: Container(
+                  height: widget.gestureAreaHeight,
+                  width: widget.rightGestureAreaWidth,
+                  color: widget.gestureBackgroundColor,
+                  child: GestureDetector(
+                    behavior: widget.gestureBehavior,
+                    onDoubleTap: widget.onDoubleTap,
+                    onTapDown: (details) {
+                      widget.controller.pause();
+                    },
+                    onTapCancel: () {
                       widget.controller.play();
-                    } else {
-                      widget.controller.next();
-                    }
-                  },
-                  onVerticalDragStart: widget.onVerticalSwipeComplete == null
-                      ? null
-                      : (details) {
-                          widget.controller.pause();
-                        },
-                  onVerticalDragCancel: widget.onVerticalSwipeComplete == null
-                      ? null
-                      : () {
-                          widget.controller.play();
-                        },
-                  onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
-                      ? null
-                      : (details) {
-                          if (verticalDragInfo == null) {
-                            verticalDragInfo = VerticalDragInfo();
-                          }
+                    },
+                    onTapUp: (details) {
+                      // if debounce timed out (not active) then continue anim
+                      if (_nextDebouncer?.isActive == false) {
+                        widget.controller.play();
+                      } else {
+                        widget.controller.next();
+                      }
+                    },
+                    onVerticalDragStart: widget.onVerticalSwipeComplete == null
+                        ? null
+                        : (details) {
+                            widget.controller.pause();
+                          },
+                    onVerticalDragCancel: widget.onVerticalSwipeComplete == null
+                        ? null
+                        : () {
+                            widget.controller.play();
+                          },
+                    onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
+                        ? null
+                        : (details) {
+                            if (verticalDragInfo == null) {
+                              verticalDragInfo = VerticalDragInfo();
+                            }
 
-                          verticalDragInfo!.update(details.primaryDelta!);
+                            verticalDragInfo!.update(details.primaryDelta!);
 
-                          // TODO: provide callback interface for animation purposes
-                        },
-                  onVerticalDragEnd: widget.onVerticalSwipeComplete == null
-                      ? null
-                      : (details) {
-                          widget.controller.play();
-                          // finish up drag cycle
-                          if (!verticalDragInfo!.cancel &&
-                              widget.onVerticalSwipeComplete != null) {
-                            widget.onVerticalSwipeComplete!(
-                                verticalDragInfo!.direction);
-                          }
+                            // TODO: provide callback interface for animation purposes
+                          },
+                    onVerticalDragEnd: widget.onVerticalSwipeComplete == null
+                        ? null
+                        : (details) {
+                            widget.controller.play();
+                            // finish up drag cycle
+                            if (!verticalDragInfo!.cancel &&
+                                widget.onVerticalSwipeComplete != null) {
+                              widget.onVerticalSwipeComplete!(
+                                  verticalDragInfo!.direction);
+                            }
 
-                          verticalDragInfo = null;
-                        },
+                            verticalDragInfo = null;
+                          },
+                  ),
                 ),
               )),
           Align(
             alignment: Alignment.centerLeft,
-            child: Container(
-              height: widget.gestureAreaHeight,
-              width: widget.leftGestureAreaWidth,
-              color: widget.gestureBackgroundColor,
-              child: GestureDetector(
-                behavior: widget.gestureBehavior,
-                onTap: () {
-                  widget.controller.previous();
-                },
+            child: Padding(
+              padding: widget.padding,
+              child: Container(
+                height: widget.gestureAreaHeight,
+                width: widget.leftGestureAreaWidth,
+                color: widget.gestureBackgroundColor,
+                child: GestureDetector(
+                  behavior: widget.gestureBehavior,
+                  onTap: () {
+                    widget.controller.previous();
+                  },
+                ),
               ),
             ),
           ),
